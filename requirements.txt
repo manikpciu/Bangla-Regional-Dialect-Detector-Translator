@@ -1,0 +1,12 @@
+streamlit
+streamlit-mic-recorder
+numpy
+pandas
+scipy
+scikit-learn
+joblib
+gTTS
+google-generativeai
+groq
+SpeechRecognition
+pydub
