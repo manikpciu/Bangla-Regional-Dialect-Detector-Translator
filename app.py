@@ -1,5 +1,5 @@
+import streamlit as st
 from groq import Groq
-groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 from streamlit_mic_recorder import mic_recorder
 from voice import speech_to_text, text_to_speech
 import numpy as np
@@ -10,9 +10,7 @@ import json
 import joblib
 from difflib import get_close_matches
 from pipeline import RegionalLexiconFeatureExtractor
-import streamlit as st
 from gtts import gTTS
-import google.generativeai as genai
 
 
 # ============================================================
@@ -26,11 +24,9 @@ st.set_page_config(
 )
 
 
-# GOOGLE GEMINI SETUP
+# GROQ SETUP
 
-GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
-genai.configure(api_key=GOOGLE_API_KEY)
-gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+groq_client = Groq(api_key=st.secrets["GROQ_API_KEY"])
 
 
 # LOAD ML ARTIFACTS
@@ -121,7 +117,7 @@ def smart_translate(user_text: str, dictionary: dict) -> str | None:
 # HELPER : GEMINI FALLBACK TRANSLATION
 # ============================================================
 
-def gemini_translate(text: str, region: str) -> str | None:
+def groq_translate(text: str, region: str) -> str | None:
 
     prompt = f"""তুমি বাংলাদেশের ভাষাবিদ।
 নিচের বাক্যটি {region} অঞ্চলের আঞ্চলিক ভাষায় লেখা।
@@ -142,7 +138,7 @@ def gemini_translate(text: str, region: str) -> str | None:
         return response.choices[0].message.content.strip()
 
     except Exception as e:
-        st.error(f"Translation Error: {e}")
+        st.error(f"AI Translation Error: {e}")
         return None
 
 # ============================================================
@@ -391,21 +387,21 @@ if process:
             source = "Dictionary"
 
             # ======================================
-            # Gemini Fallback
+            # Groq AI Fallback
             # ======================================
 
             if standard is None:
 
                 with st.spinner(
-                    "🤖 Gemini is translating..."
+                    "🤖 Groq AI is translating..."
                 ):
 
-                    standard = gemini_translate(
+                    standard = groq_translate(
                         user_text,
                         region
                     )
 
-                source = "Gemini AI"
+                source = "Groq AI"
 
             # ======================================
             # Translation Output
@@ -428,7 +424,7 @@ if process:
                 else:
 
                     st.caption(
-                        "🤖 Source : Gemini AI"
+                        "🤖 Source : Groq AI (Llama-3.3-70B)"
                     )
 
                 # ======================================
